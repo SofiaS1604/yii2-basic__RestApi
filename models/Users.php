@@ -3,7 +3,6 @@
 namespace app\models;
 
 use Yii;
-use yii\rest\ActiveController;
 
 /**
  * This is the model class for table "users".
@@ -36,25 +35,7 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['login', 'password', 'surname', 'first_name', 'phone', 'email', 'token'], 'required'],
             [['login', 'password', 'surname', 'first_name', 'phone', 'email', 'token'], 'string'],
             ['phone', 'string', 'min' => 11, 'max' => 11],
-            [['login'], 'unique'],
-            [['email'], 'email']
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'login' => 'Login',
-            'password' => 'Password',
-            'surname' => 'Surname',
-            'first_name' => 'First Name',
-            'phone' => 'Phone',
-            'email' => 'Email',
-            'token' => 'Token',
+            ['login', 'string', 'unique']
         ];
     }
 
@@ -126,5 +107,22 @@ class Users extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($password)
     {
         return $this->password === $password;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'login' => 'Login',
+            'password' => 'Password',
+            'surname' => 'Surname',
+            'first_name' => 'First Name',
+            'phone' => 'Phone',
+            'email' => 'Email',
+            'token' => 'Token',
+        ];
     }
 }
