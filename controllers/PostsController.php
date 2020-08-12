@@ -239,8 +239,10 @@ class PostsController extends ActiveController
                         $comment->delete();
                 }
 
-                unlink('./'. explode('http://localhost/yii2-basic__RestApi/', $post->image)[1]);
-                 $post->delete();
+                unlink('./' . explode('http://localhost/yii2-basic__RestApi/', $post->image)[1]);
+                $post->delete();
+
+                return $this->outputData(201, 'Successful delete', true, null);
             } else {
                 return $this->outputData(404, 'Post not found', false, 'Post not found');
             }
