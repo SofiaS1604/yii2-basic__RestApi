@@ -28,7 +28,7 @@ class UsersController extends ActiveController
             'authMethods' => [
                 HttpBearerAuth::className(),
             ],
-            'except' => ['auth', 'create', 'user', 'logout', 'update']
+            'except' => ['auth', 'create', 'user', 'logout', 'update', 'search']
         ];
 
         $behaviors['corsFilter'] = [
@@ -49,6 +49,7 @@ class UsersController extends ActiveController
         unset($actions['user']);
         unset($actions['update']);
         unset($actions['logout']);
+        unset($actions['search']);
         return $actions;
     }
 
@@ -135,36 +136,68 @@ class UsersController extends ActiveController
 
     public function actionUser()
     {
-        if($user = Users::findIdentityByAccessToken($this->getToken())){
+        if ($user = Users::findIdentityByAccessToken($this->getToken())) {
             $user_array = $this->getUser($user, true);
             return $this->outputData(200, 'OK', true, $user_array);
-        }else{
+        } else {
             return $this->outputData(401, 'Unauthorized', false, 'Unauthorized');
         }
     }
 
-    public function actionLogout(){
-        if($user = Users::findIdentityByAccessToken($this->getToken())){
+    public function actionLogout()
+    {
+        if ($user = Users::findIdentityByAccessToken($this->getToken())) {
             $user->token = '-1';
             return $this->outputData(200, 'OK', true, null);
-        }else{
+        } else {
             return $this->outputData(401, 'Unauthorized', false, 'Unauthorized');
         }
     }
 
-    public function actionUpdate(){
-        if($user = Users::findIdentityByAccessToken($this->getToken())){
+    public function actionUpdate()
+    {
+        if ($user = Users::findIdentityByAccessToken($this->getToken())) {
             $input = Yii::input();
             $user->load($input, '');
             $user->save();
 
-            if(count($user->errors)){
+            if (count($user->errors)) {
                 return $this->outputData(401, 'Unprocessable entity', false, $user->errors);
-            }else{
+            } else {
                 $user_array = $this->getUser($user, true);
                 return $this->outputData(200, 'Update', true, $user_array);
             }
-        }else{
+        } else {
+            return $this->outputData(401, 'Unauthorized', false, 'Unauthorized');
+        }
+    }
+
+    public function actionSearch($input)
+    {
+        if ($user = Users::findIdentityByAccessToken($this->getToken())) {
+            $exploded = explode(' ', $input);
+            $users = [];
+
+            if (count($exploded) === 1) {
+                $users = Users::find()->where(['like', 'first_name', $input[0]])->all();
+                $users = array_merge($users, Users::find()->where(['like', 'surname', $input[0]])->all());
+                $users = array_merge($users, Users::find()->where(['like', 'phone', $input[0]])->all());
+            } else if (count($exploded) === 2) {
+                $users = Users::find()->where(['like', 'first_name', $input[0]])->andWhere(['like', 'surname', $input[1]])->all();
+                $users = array_merge($users, Users::find()->where(['like', 'surname', $input[0]])->andWhere(['like', 'phone', $input[1]])->all());
+                $users = array_merge($users, Users::find()->where(['like', 'first_name', $input[0]])->andWhere(['like', 'phone', $input[1]])->all());
+            } else if (count($exploded) === 2)
+                $users = Users::find()->where(['like', 'first_name', $input[0]])
+                    ->andWhere(['like', 'surname', $input[1]])->andWhere(['like', 'phone', $input[2]])->all();
+
+            $users_array = [];
+            if (!empty($users)) {
+                foreach ($users as $user)
+                    $users_array[] = $this->getUser($user, true);
+            }
+
+            return $this->outputData(200, 'Found users', true, $users_array);
+        } else {
             return $this->outputData(401, 'Unauthorized', false, 'Unauthorized');
         }
     }
