@@ -53,8 +53,25 @@ $config = [
             'rules' => [
                 [
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => ['users'],
-                ]
+                    'controller' => ['users', 'posts', 'comments'],
+                ],
+
+                'POST /login' => 'users/auth',
+                'POST /signup' => 'users/create',
+                'GET /user' => 'users/index',
+                'POST /logout' => 'users/logout',
+                'PATCH /user/update' => 'users/update',
+                'GET /user/search' => 'users/search',
+
+                'POST /posts' => 'posts/create',
+                'PATCH /posts/<id>' => 'posts/update',
+                'DELETE /posts/<id>' => 'posts/delete',
+                'GET /posts' => 'posts/view',
+                'GET /posts/<id>' => 'posts/index',
+                'GET /posts/tag/<tag>' => 'posts/search',
+
+                'POST /posts/<id>/comments' => 'comments/create',
+                'POST /posts/<post_id>/comments/<comment_id>' => 'comments/delete',
             ],
         ],
 
