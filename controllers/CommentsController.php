@@ -22,7 +22,7 @@ class CommentsController extends ActiveController
 
     public function getToken()
     {
-        $token = Yii::$app->response->headers->get('Authorization');
+        $token = Yii::$app->request->headers->get('Authorization');
         return !empty($token) && explode(' ', $token)[1] !== '-1' ? explode(' ', $token)[1] : null;
     }
 
@@ -43,6 +43,11 @@ class CommentsController extends ActiveController
                 $input = Yii::input();
                 $comment = new Comments();
                 $comment->post_id = $post->id;
+                $comment->author = $user->login;
+
+                date_default_timezone_set("Europe/Moscow");
+                $comment->datatime = date("H:i m.d.y");
+
                 $comment->load($input, '');
                 $comment->save();
 
